@@ -10,24 +10,7 @@ function App() {
   const [status,setStatus]=useState("all");
   const [filteredTodos,setFilteredTodos]=useState([]);
 
-  useEffect(()=>{
-    
-    const axios = require("axios");
-    axios
-      .get("https://gorest.co.in/public/v2/todos")
-      .then(function (response) {
-        setData(response.data);
-        console.log(response.data, "test");
-      })
-      .catch(function (error) {
-        // handle error
-        console.log(error);
-      })
-      .then(function () {
-        // always executed
-      });
 
-  },[])
   useEffect(()=>{
     getLocalTodos();
   },[])
