@@ -11,6 +11,24 @@ function App() {
   const [filteredTodos,setFilteredTodos]=useState([]);
 
   useEffect(()=>{
+    
+    const axios = require("axios");
+    axios
+      .get("https://gorest.co.in/public/v2/todos")
+      .then(function (response) {
+        setData(response.data);
+        console.log(response.data, "test");
+      })
+      .catch(function (error) {
+        // handle error
+        console.log(error);
+      })
+      .then(function () {
+        // always executed
+      });
+
+  },[])
+  useEffect(()=>{
     getLocalTodos();
   },[])
   useEffect(()=>{
@@ -49,7 +67,7 @@ function App() {
   return (
     <div className="App">
         <header>
-          <h1>Domina ToDo Lista</h1>
+          <h1>Domina ToDo Lista V2</h1>
         </header>
         <Form 
         todos={todos} 
