@@ -2,6 +2,12 @@ import React,{ useState, useEffect } from 'react';
 import './App.css';
 import Form from './komponente/Form';
 import TodoList from './komponente/TodoList';
+import { withAuthenticator } from '@aws-amplify/ui-react';
+import { Auth } from 'aws-amplify';
+
+Auth.signOut()
+  .then(data => console.log(data))
+  .catch(err => console.log(err));
 
 function App() {
 
@@ -62,8 +68,9 @@ function App() {
         <TodoList todos={todos} 
         setTodos={setTodos}
         filteredTodos={filteredTodos}/>
+
     </div>
   );
 }
 
-export default App;
+export default withAuthenticator(App);
