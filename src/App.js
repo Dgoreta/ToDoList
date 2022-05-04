@@ -2,14 +2,20 @@ import React,{ useState, useEffect } from 'react';
 import './App.css';
 import Form from './komponente/Form';
 import TodoList from './komponente/TodoList';
+import { Amplify } from 'aws-amplify';
 import { withAuthenticator } from '@aws-amplify/ui-react';
-import { Auth } from 'aws-amplify';
+import '@aws-amplify/ui-react/styles.css';
+import { API, graphqlOperation } from 'aws-amplify'
+import { createTodo } from './graphql/mutations'
+import { listTodos } from './graphql/queries'
 
-Auth.signOut()
-  .then(data => console.log(data))
-  .catch(err => console.log(err));
+import awsExports from './aws-exports';
+Amplify.configure(awsExports);
 
-function App() {
+const initialState = { name: '', description: '' }
+
+function App({ signOut, user }) {
+  const [formState, setFormState] = useState(initialState)
 
   const [inputText,setInputText]=useState("");
   const [todos,setTodos]=useState([]);
@@ -18,12 +24,32 @@ function App() {
 
 
   useEffect(()=>{
-    getLocalTodos();
+    fetchTodos();
   },[])
   useEffect(()=>{
     filterHandler();
     saveLocalTodos();
   },[todos,status]);
+
+  async function fetchTodos() {
+    try {
+      const todoData = await API.graphql(graphqlOperation(listTodos))
+      const todos = todoData.data.listTodos.items
+      setTodos(todos)
+    } catch (err) { console.log('error fetching todos') }
+  }
+
+  async function addTodo() {
+    try {
+      if (!formState.name || !formState.description) return
+      const todo = { ...formState }
+      setTodos([...todos, todo])
+      setFormState(initialState)
+      await API.graphql(graphqlOperation(createTodo, {input: todo}))
+    } catch (err) {
+      console.log('error creating todo:', err)
+    }
+  }
 
   const filterHandler=()=>{
     switch (status){
@@ -54,10 +80,16 @@ function App() {
     }
   }
   return (
-    <div className="App">
+
+  <div className="App">
         <header>
-          <h1>Domina ToDo Lista V2</h1>
+          <div>
+          <h1>{user.username} ToDo Lista V2</h1>
+          <button className="button" onClick={signOut}>Sign out</button>
+          </div>
+
         </header>
+        <div className="todoList">
         <Form 
         todos={todos} 
         setTodos={setTodos} 
@@ -68,8 +100,11 @@ function App() {
         <TodoList todos={todos} 
         setTodos={setTodos}
         filteredTodos={filteredTodos}/>
+        </div>
+
 
     </div>
+
   );
 }
 
