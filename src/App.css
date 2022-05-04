@@ -12,6 +12,9 @@ body {
 header {
   font-size: 2rem;
 }
+.todoList{
+  min-height: 60vh;
+}
 
 header,
 form {
